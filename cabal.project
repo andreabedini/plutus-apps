@@ -156,10 +156,10 @@ source-repository-package
 -- Direct dependency.
 source-repository-package
     type: git
-    location: https://github.com/Quviq/quickcheck-contractmodel
-    tag: cc43f13f98c704e0d53dbdef6a98367918f8c5c1
+    location: https://github.com/input-output-hk/quickcheck-contractmodel
+    tag: 071628000ad391ba6849b4d8407b5375228d235d
     subdir:
-      contractmodel
+      quickcheck-contractmodel
 
 -- Should follow cardano-wallet.
 source-repository-package
