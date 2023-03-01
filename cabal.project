@@ -61,6 +61,8 @@ allow-newer:
   , servant:aeson
   , servant-client-core:aeson
   , servant-server:aeson
+  , servant-foreign:lens
+  , blockfrost-api:lens
 
 constraints:
   -- cardano-prelude-0.1.0.0 needs
