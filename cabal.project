@@ -93,6 +93,9 @@ constraints:
 
   , http2 <4.0.0
 
+  -- ouroboros-consensus-shelley-0.1.0.1 needs
+  , ouroboros-consensus-protocol==0.1.0.1
+
 -- The plugin will typically fail when producing Haddock documentation. However,
 -- in this instance you can simply tell it to defer any errors to runtime (which
 -- will never happen since you're building documentation).
