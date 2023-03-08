@@ -36,7 +36,6 @@ module Ledger.Tx.Constraints.OffChain(
     -- * Constraints resolution
     , SomeLookupsAndConstraints(..)
     , UnbalancedTx(..)
-    , unBalancedTxTx
     , tx
     , txInsCollateral
     , txValidityRange
@@ -136,7 +135,7 @@ import Plutus.V1.Ledger.Scripts (MintingPolicy (MintingPolicy), MintingPolicyHas
 import PlutusTx (FromData, ToData (toBuiltinData))
 import PlutusTx.Lattice (BoundedMeetSemiLattice (top), JoinSemiLattice ((\/)), MeetSemiLattice ((/\)))
 import PlutusTx.Numeric qualified as N
-import Prettyprinter (Pretty (pretty), colon, hang, vsep, (<+>))
+import Prettyprinter (Pretty (pretty), colon, hang, viaShow, vsep, (<+>))
 
 
 data ScriptLookups a =
@@ -334,18 +333,7 @@ paymentPubKeyHash pkh =
 --   can be submitted to the ledger. See note [Submitting transactions from
 --   Plutus contracts] in 'Plutus.Contract.Wallet'.
 data UnbalancedTx
-    = UnbalancedEmulatorTx
-        { unBalancedEmulatorTx            :: Tx.Tx
-        , unBalancedTxRequiredSignatories :: Set PaymentPubKeyHash
-        -- ^ These are all the payment public keys that should be used to request the
-        -- signatories from the user's wallet. The signatories are what is required to
-        -- sign the transaction before submitting it to the blockchain. Transaction
-        -- validation will fail if the transaction is not signed by the required wallet.
-        , unBalancedTxUtxoIndex           :: Map TxOutRef TxOut
-        -- ^ Utxo lookups that are used for adding inputs to the 'UnbalancedTx'.
-        -- Simply refers to  'slTxOutputs' of 'ScriptLookups'.
-        }
-    | UnbalancedCardanoTx
+    = UnbalancedCardanoTx
         { unBalancedCardanoBuildTx :: C.CardanoBuildTx
         , unBalancedTxUtxoIndex    :: Map TxOutRef TxOut
         -- ^ Utxo lookups that are used for adding inputs to the 'UnbalancedTx'.
@@ -362,20 +350,11 @@ makeLensesFor
 tx :: Traversal' UnbalancedTx C.CardanoBuildTx
 tx = cardanoTx
 
-unBalancedTxTx :: UnbalancedTx -> Either C.CardanoBuildTx Tx.Tx
-unBalancedTxTx UnbalancedEmulatorTx{unBalancedEmulatorTx}    = Right unBalancedEmulatorTx
-unBalancedTxTx UnbalancedCardanoTx{unBalancedCardanoBuildTx} = Left unBalancedCardanoBuildTx
-
 instance Pretty UnbalancedTx where
-    pretty (UnbalancedEmulatorTx utx rs utxo) =
-        vsep
-        [ hang 2 $ vsep ["Tx:", pretty utx]
-        , hang 2 $ vsep $ "Requires signatures:" : (pretty <$> Set.toList rs)
-        , hang 2 $ vsep $ "Utxo index:" : (pretty <$> Map.toList utxo)
-        ]
     pretty (UnbalancedCardanoTx utx utxo) =
         vsep
-        [ hang 2 $ vsep ["Tx (cardano-api Representation):", pretty utx]
+        [ hang 2 $ vsep ["Tx:", pretty utx]
+        , hang 2 $ vsep $ "Requires signatures:" : (viaShow <$> Set.toList (utx ^. txExtraKeyWits))
         , hang 2 $ vsep $ "Utxo index:" : (pretty <$> Map.toList utxo)
         ]
 

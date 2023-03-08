@@ -60,6 +60,9 @@
       url = "github:haskell/haskell-language-server?ref=1.8.0.0";
       flake = false;
     };
+    plutus-core = {
+      url = "github:input-output-hk/plutus";
+    };
   };
 
   # The flake outputs are managed by std.
@@ -79,8 +82,8 @@
         # In this repository we have two cells:
         #   automation
         #     Hydra jobsets and GHA tasks
-        #   plutus
-        #     Devshell, tooling and packages for plutus and its documentation
+        #   plutus-apps
+        #     devcontainer, devshells, library and packages for plutus-apps and its documentation
         cellsFrom = ./__std__/cells;
 
         # Each cell contains "cell blocks".
@@ -99,7 +102,7 @@
         #   packages :: installables
         #     Derivations available via nix build
         #   devcontainer :: installables
-        #     Doker image for creating a VS Core development environment
+        #     Docker image for creating a VS Code development environment
         #   library :: functions
         #     Everything that is not a derivation goes here
         #     Includes functions, attrsets and simple literal values shared across cells
